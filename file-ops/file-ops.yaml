@@ -1,0 +1,30 @@
+---
+- name: demo a set of file ops
+  hosts: server1
+  gather_facts: no
+  tasks:
+    - name: create a file
+      file:
+        path: /root/sample.txt
+        mode: 0640
+        state: touch
+
+    - name: Add a line of text to a file
+      lineinfile:
+        path: /root/sample.txt
+        line: 'This is the first line in this file'
+        state: present
+
+    - name: Add a block of text to a file
+      blockinfile:
+        path: /root/sample.txt
+        block: |
+          second line in the file (part of block text)
+          third line in the file (part of block text)
+        state: present
+
+    - name: fetch the file from remote machine to local
+      fetch:
+        src: /root/sample.txt
+        dest: ./
+        flat: yes
