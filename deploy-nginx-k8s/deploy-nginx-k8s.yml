@@ -1,0 +1,30 @@
+---
+
+- name: deploy nginx on kubernetes
+  hosts: localhost
+  tasks:
+
+    - name: create namespace
+      kubernetes.core.k8s:
+        name: nginx-ns
+        kind: namespace
+        state: present
+
+    - name: deploy nginx
+      kubernetes.core.k8s:
+        src: src/nginx-deployment.yml
+        namespace: nginx-ns
+        state: present
+
+    - name: create nginx nodeport service
+      kubernetes.core.k8s:
+        src: src/nginx-svc.yml
+        namespace: nginx-ns
+        state: present
+
+    - name: list the k8s objects deployed
+      shell: kubectl get all -n nginx-ns
+      register: command_output
+
+    - debug:
+        var: command_output.stdout_lines
