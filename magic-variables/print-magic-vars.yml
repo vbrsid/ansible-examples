@@ -1,0 +1,13 @@
+---
+- name: Uninstall nginx web server
+  hosts: all
+  gather_facts: no
+  tasks:
+    - debug:
+        msg: 
+          - "the inventory_hostname is:" 
+          - "{{ inventory_hostname }}"
+          - "the {{ inventory_hostname }} is in group(s):" 
+          - "{{ group_names }}"
+          - "inventory has these groups:"
+          - "{{ groups }}"
