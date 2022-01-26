@@ -1,0 +1,13 @@
+---
+- name: Uninstall nginx web server
+  hosts: server1
+  vars:
+    webserver: nginx
+  tasks:
+    - name: uninstall nginx
+      apt:
+        name: "{{ webserver }}"
+        state: absent
+      register: nginx_output
+    - debug:
+        var: nginx_output

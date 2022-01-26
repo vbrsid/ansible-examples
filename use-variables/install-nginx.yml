@@ -1,0 +1,23 @@
+---
+
+- name: Install nginx web server
+  hosts: server1
+  vars:
+    webserver: nginx
+  tasks:
+    - name: install nginx
+      apt:
+        name: "{{ webserver }}"
+        state: latest
+      register: nginx_output
+
+    - name: curl the nginx home from local host
+      uri:
+        url: http://{{ ansible_facts['default_ipv4']['address'] }}
+        return_content: yes
+        headers:
+          Content-Type: application/json
+      register: url_return_content
+
+    - debug:
+        var: url_return_content['content']
