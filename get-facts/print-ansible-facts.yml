@@ -1,0 +1,10 @@
+---
+
+- name: print ansible facts
+  hosts: server1
+  tasks:
+    - debug:
+        var: ansible_facts
+
+    - name: copy ansible facts into a file locally
+      local_action: copy content={{ ansible_facts | to_nice_json}} dest=facts.json
