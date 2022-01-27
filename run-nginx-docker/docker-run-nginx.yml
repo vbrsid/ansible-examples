@@ -1,0 +1,21 @@
+---
+
+- name: run nginx from a docker image
+  hosts: server1
+  tasks:
+    - name: run nginx as docker container
+      community.docker.docker_container:
+        name: nginx-as-docker-container
+        state: present
+        image: nginx
+        ports:
+          - "80:80" 
+
+    - name: curl the nginx home from local host
+      uri:
+        url: http://{{ ansible_facts['default_ipv4']['address'] }}
+        return_content: yes
+      register: url_return_content
+
+    - debug:
+        var: url_return_content['content']
