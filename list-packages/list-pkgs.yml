@@ -1,0 +1,10 @@
+---
+- name: Display installed packages
+  hosts: server1
+  tasks:
+    - name: Gather info on installed packages
+      package_facts:
+        manager: auto
+    - name: List installed packages
+      debug:
+        var: ansible_facts.packages
