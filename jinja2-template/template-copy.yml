@@ -1,0 +1,11 @@
+---
+
+- name: copy README as a template to newly created VMs
+  hosts: all
+  vars:
+    vm_owner: Vijay Bhaskar
+  tasks:
+    - name: copy README from template
+      template:
+        src: readme.j2
+        dest: /root/README
