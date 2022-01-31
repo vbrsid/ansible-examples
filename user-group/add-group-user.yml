@@ -1,0 +1,14 @@
+---
+
+- hosts: server1
+  tasks:
+    - name: create a group
+      group:
+        name: problem-solvers
+        state: present
+    
+    - name: add user to group
+      user:
+        name: vijay
+        groups: problem-solvers
+        append: yes

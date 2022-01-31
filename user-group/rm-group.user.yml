@@ -1,0 +1,15 @@
+---
+
+- hosts: server1
+  tasks:
+    - name: remove user from group
+      user:
+        name: vijay
+        state: absent
+        remove: yes
+
+    - name: remove a group
+      group:
+        name: problem-solvers
+        state: absent
+    
