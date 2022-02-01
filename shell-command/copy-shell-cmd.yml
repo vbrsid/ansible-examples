@@ -1,0 +1,29 @@
+---
+
+- hosts: server
+  gather_facts: no
+  tasks:
+    - name: copy shell script to managed host
+      copy:
+        src: sample-script.sh
+        dest: /root
+    - name: invoke shell script
+      shell: /bin/bash /root/sample-script.sh
+
+    - name: execute a command
+      command: cat /root/hello.txt
+      register: hello_out
+
+    - debug:
+        msg: the file has...
+        msg: "{{ hello_out.stdout_lines }}" 
+
+    - name: delete hello.txt
+      file:
+        path: /root/hello.txt
+        state: absent
+
+    - name: delete shell script
+      file:
+        path: sample-script.sh
+        state: absent
