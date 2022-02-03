@@ -4,4 +4,5 @@ This repo has multiple examples on Ansible and each one is complete by itself. E
 
 These examples are tested with version 2.12.1 of Ansible on Mac. Make sure that the python version in the path and python version used by Ansible are of the same version. In my case, they both are 3.10.1.
 
-!(/images/ansible-python-version.png)
+
+<img src="/images/ansible-python-version.png" width="600" height="300">
