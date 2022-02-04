@@ -1,0 +1,11 @@
+---
+
+- name: loop through module op
+  hosts: localhost
+  tasks:
+    - name: loop
+      debug:
+        msg: "going through item - {{ item }}"
+      loop:
+        - one
+        - two
