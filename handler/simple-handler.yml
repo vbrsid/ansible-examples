@@ -1,0 +1,21 @@
+---
+
+- name: a simple handler invoked after tasks
+  hosts: localhost
+  tasks:
+    - name: copy content into a file
+      copy:
+        content: "This is a sample line"
+        dest: sample.txt
+      notify:
+        - display content
+        - print output
+
+  handlers: 
+    - name: display content
+      command: cat sample.txt
+      register: filecontent
+    - name: print output
+      debug:
+        msg: "{{ filecontent.stdout }}"
+   
