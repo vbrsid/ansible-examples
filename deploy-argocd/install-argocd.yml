@@ -1,0 +1,19 @@
+---
+
+- name: install argocd on kubernetes
+  hosts: localhost
+  tasks:
+
+    - name: install namespace
+      kubernetes.core.k8s:
+        name: argocd
+        kind: namespace
+        state: present
+
+    - name: install argocd
+      kubernetes.core.k8s:
+        src: src/argocd.yml
+        namespace: argocd
+        state: present
+
+
