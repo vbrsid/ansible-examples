@@ -3,6 +3,13 @@
 - hosts: master,worker1
   tasks:    
 
+    - ansible.posix.sysctl:
+        name: net.ipv4.ip_forward
+        value: '1'
+        sysctl_set: yes
+        state: present
+        reload: yes
+
     - name: create containerd config file
       file:
         path: /etc/modules-load.d/containerd.conf
@@ -15,7 +22,7 @@
               overlay
               br_netfilter
 
-    - name: modprobe
+    - name: run modprobe
       shell: |
               modprobe overlay
               modprobe br_netfilter
@@ -27,7 +34,7 @@
 
     - name: add conf for containerd
       blockinfile:
-        path: /etc/modules-load.d/containerd.conf
+        path: /etc/sysctl.d/99-kubernetes-cri.conf
         block: |
                 net.bridge.bridge-nf-call-iptables = 1
                 net.ipv4.ip_forward = 1
@@ -60,10 +67,10 @@
         name: containerd
         state: restarted
 
-     - name: disable swap
-       shell: |
-               sudo swapoff -a
-               sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+    - name: disable swap
+      shell: |
+              sudo swapoff -a
+              sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 
     - name: Update the packages cache
       apt: 
@@ -94,8 +101,8 @@
     - name: Install kubeadm and kubelet
       apt: 
         name:
-          - kubelet
           - kubeadm
+          - kubelet
         state: present
 
     - name: Install kubectl only on master
@@ -103,7 +110,7 @@
         name:
           - kubectl
         state: present
-        when: noderole == "master"
+      when: noderole == "master"
 
     - name: hold kubeadm
       dpkg_selections:
@@ -120,3 +127,46 @@
         name: kubectl
         selection: hold
       when: noderole == "master"
+
+- hosts: master
+  tasks:
+    - name: run kubeadm init to setup master
+      shell: kubeadm init
+      ignore_errors: yes
+      
+    - name: create .kube directory
+      file:
+        path: $HOME/.kube
+        state: directory
+
+    - name: copy kubeconfig find to .kube dir
+      copy:
+        src: /etc/kubernetes/admin.conf
+        dest: /root/.kube/config
+        remote_src: yes
+
+    - name: install calico plugin
+      shell: kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+
+    - name: get the token for joining the worker node
+      shell: kubeadm token create  --print-join-command
+      register: k8s_join_command
+
+    - name: copy k8s join token to tmp file locally
+      local_action: copy content="{{ k8s_join_command.stdout_lines[0] }}" dest="/tmp/k8s_join_command"
+
+
+- hosts: worker1
+  tasks:
+    - name: copy join command to worker node
+      copy:
+        src: /tmp/k8s_join_command
+        dest: /tmp/k8s_join_command
+        mode: 0777
+
+    - name: join worker node to th cluster 
+      command: sh /tmp/k8s_join_command
+      register: join_output
+
+    - debug:
+        var: "{{ join_output }}"
