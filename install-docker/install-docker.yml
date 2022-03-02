@@ -3,19 +3,6 @@
   hosts: server
   tasks:    
 
-    - name: Update the packages cache
-      apt: 
-        update_cache: yes
-
-    - name: Install prerequsite packages 
-      apt: 
-        name:
-          - ca-certificates
-          - curl
-          - gnupg
-          - lsb-release
-        state: present
-
     - name: Get docker GPG key
       apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
@@ -27,6 +14,10 @@
         filename: docker
         mode: 0600
     
+    - name: Update the packages cache
+      apt: 
+        update_cache: yes
+
     - name: Install Docker
       apt: 
         name:
@@ -34,9 +25,8 @@
           - docker-ce-cli
           - containerd.io
         state: present
-        update_cache: yes
 
-    - name: Install Docker
+    - name: Start Docker Service
       service: 
         name: docker
         state: started
