@@ -1,0 +1,2 @@
+master ansible_host=9.30.222.249 ansible_user=root noderole=master
+worker1 ansible_host=9.30.223.158 ansible_user=root noderole=worker
