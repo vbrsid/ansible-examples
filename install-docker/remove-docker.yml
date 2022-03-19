@@ -1,0 +1,34 @@
+---
+- name: Remove docker on Ubuntu 20.04
+  hosts: server
+  tasks:    
+
+    - name: Stop Docker
+      service: 
+        name: docker
+        state: stopped
+
+    - name: Remove Docker
+      apt: 
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: absent
+
+    - name: Remove Docker Repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+        state: absent
+        filename: docker
+        mode: 0600
+
+    - name: Remove docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: absent
+    
+    - name: Update the packages cache
+      apt: 
+        update_cache: yes
+

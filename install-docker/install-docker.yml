@@ -1,6 +1,6 @@
 ---
 - name: Install docker on Ubuntu 20.04
-  hosts: server
+  hosts: all
   tasks:    
 
     - name: Get docker GPG key
