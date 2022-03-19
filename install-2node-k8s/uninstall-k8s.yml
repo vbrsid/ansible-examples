@@ -1,0 +1,85 @@
+---
+
+- hosts: master,worker1
+
+  tasks:
+    - name: run kubeadm reset on master
+      shell: kubeadm reset -f
+
+    - name: remove .kube directory
+      file:
+        path: $HOME/.kube
+        state: absent
+      when: noderole == "master"
+
+    - name: deinstall kubeadm
+      dpkg_selections:
+        name: kubeadm
+        selection: deinstall
+
+    - name: unhold kubelet
+      dpkg_selections:
+        name: kubelet
+        selection: deinstall
+
+    - name: unhold kubectl
+      dpkg_selections:
+        name: kubectl
+        selection: deinstall
+      when: noderole == "master"
+
+    - name: remove kubeadm and kubelet
+      apt: 
+        name:
+          - kubeadm
+          - kubelet
+        state: absent
+
+    - name: remove kubectl only on master
+      apt: 
+        name:
+          - kubectl
+        state: absent
+      when: noderole == "master"
+
+    - name: remove containerd
+      apt: 
+        name:
+          - containerd
+        state: absent
+
+    - name: create directory
+      file:
+        path: /etc/containerd
+        state: directory
+    
+    - name: create containerd config file
+      file:
+        path: /etc/modules-load.d/containerd.conf
+        state: absent
+
+    - name: config file for k8s networking
+      file:
+        path: /etc/sysctl.d/99-kubernetes-cri.conf
+        state: absent
+
+    - name: remove kubeadm repo
+      apt_repository:
+        repo: deb [arch=amd64] https://apt.kubernetes.io/ kubernetes-xenial main
+        state: absent
+        filename: kubernetes
+        mode: 0600
+          
+    - ansible.posix.sysctl:
+        name: net.ipv4.ip_forward
+        value: '1'
+        sysctl_set: yes
+        state: absent
+        reload: yes
+
+    - name: remove utilities
+      apt: 
+        name:
+          - apt-transport-https
+          - curl
+        state: absent
